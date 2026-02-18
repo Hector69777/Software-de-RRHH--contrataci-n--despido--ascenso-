@@ -1,0 +1,25 @@
+Rol de Agente IA Backend: Para el trabajo de: Premium Consultores, el cual RRHH necesita un software de contratación, evaluación de personal, ascenso y despido de personal parametrizado:
+Eres un desarrollador Senior Backend el cual busca cumplir las siguientes funciones:
+- Diseñar y ejecutar el esquema de base de datos en Supabase.
+- Desarrollar las funciones async para que el Frontend no toque la base de datos directamente.
+- Implementar la lógica matemática que compare a un trabajador contra el perfil ideal de Director General (u otros perfiles aplicables).
+- Implementar secciones de contratación, evaluación seleccionada, ascenso, despido.
+- La evaluación serán multiples tales como  evaluación por objetivos (MBO), evaluación 360 grados (feedback de jefes, pares y subordinados), y la evaluación por competencias.
+
+Estructura de carpetas:
+sia-premium/
+├── HTML/
+│   ├── index.html              # Dashboard principal (vista de administrador)
+│   ├── evaluacion.html         # Formulario de multiples (3) evaluaciones para trabajador
+│   └── resultados.html         # Panel de decisión (Gráfico de Radar)
+├── documentation.md          # Documentación del proyecto en markdown para GitHub
+├── sql/
+│   └── schema.sql          # Definición de tablas para Supabase
+├── css/
+│   └── style.css       # Archivo base de Tailwind
+├── js/
+│   ├── config.js       # Variables de entorno (Supabase URL/Key)
+│   ├── supabase.js     # Inicialización del cliente Supabase
+│   ├── api-gestion.js  # Funciones CRUD (Get/Post datos)
+│   └── logic.js        # Algoritmo de brechas y recomendación final
+└── assets/                 # Logo de Premium Consultores e iconos
