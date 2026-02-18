@@ -25,4 +25,3 @@ Este software permite gestionar el ciclo de vida de los empleados, desde su cont
 ## Tecnologías
 - **Frontend**: HTML5, CSS3 (Tailwind), JavaScript (Vanilla).
 - **Backend**: Supabase (PostgreSQL).
-- **IA**: Asistente Backend (Antigravity) para lógica y arquitectura.
