@@ -23,3 +23,16 @@ sia-premium/
 │   ├── api-gestion.js  # Funciones CRUD (Get/Post datos)
 │   └── logic.js        # Algoritmo de brechas y recomendación final
 └── assets/                 # Logo de Premium Consultores e iconos
+
+SQL Generation: Actúa como experto en bases de datos PostgreSQL (Supabase). 
+- Genera el script SQL para crear las tablas en Supabase siguiendo exactamente el diagrama de Whimsical que diseñé (anexo imagen). 
+- Las tablas son: empleado (con UUID como PK), competencias (int8), perfil_meta (FK a competencias) y evaluacion360 (FK a empleado y competencias). 
+- Asegúrate de incluir las restricciones de llave foránea (Foreign Keys) y añade comentarios a cada tabla explicando que son para el sistema SIA de Premium Consultores.
+
+Data Seeding: Genera un script SQL para insertar los datos iniciales del caso 'Premium Consultores'. Necesito:
+1. Las 5 competencias: Producción , Iniciativa, Comunicación, Relaciones Interpersonales y Manejo del Cambio .
+2. El empleado: Juan Carlos Sánchez (cargo: Consultor Senior).
+3. El Perfil Meta: (cargo ideal: 'Director General') con puntajes ideales de 5 en todas las áreas para representar el estándar de excelencia de la firma.
+4. Un registro de prueba en evaluacion360 donde un 'Colega' (Ricardo Pérez) le da a Sánchez un 2 en 'Comunicación' para probar las brechas.
+- Para lograr esto crea un archivo llamado seed.sql (en la carpeta sql) con el código de inserción de datos de Premium Consultores. 
+    Este archivo debe ser independiente del schema.sql para mantener la integridad de la estructura.
