@@ -36,3 +36,31 @@ Data Seeding: Genera un script SQL para insertar los datos iniciales del caso 'P
 4. Un registro de prueba en evaluacion360 donde un 'Colega' (Ricardo Pérez) le da a Sánchez un 2 en 'Comunicación' para probar las brechas.
 - Para lograr esto crea un archivo llamado seed.sql (en la carpeta sql) con el código de inserción de datos de Premium Consultores. 
     Este archivo debe ser independiente del schema.sql para mantener la integridad de la estructura.
+
+06/03/2026
+Novedades:
+Ventana 01: Contratación de empleados o prospectos.
+1. Diseño y Expansión del Esquema de Base de Datos (Supabase)
+Tabla candidatos: Diseñar la migración SQL para almacenar los perfiles. Definir tipos de datos estrictos para proteger la integridad:
+
+- cedula (TEXT, unique)
+- nombre, telefono, cv_url (TEXT)
+- departamento_deseado (TEXT)
+- años_experiencia (INT2)
+- formacion (ENUM o TEXT con restricción: Universitaria, Técnico, Secundaria, PostGrado, Doctorado).
+- fecha_registro (TIMESTAMPTZ, default NOW()).
+´´Listo manualmente en la base de datos´´
+Crear funciones: insertarCandidato(), obtenerListaCandidatos(), procesarFormularioCandidato().
+Desarrollar apartado de evaluación de contratación
+Estructura de la Prueba: Definir el diccionario de datos (JSON) que contenga.
+Categoría A: Contaduría y Bolsa (3 preguntas de 5 opciones).
+Categoría B: Agilidad y Negociación (3 preguntas de 5 opciones).
+Categoría C: Psicotécnicas/Cultura Premium Consultores (3 preguntas de 5 opciones).
+Categoría D: Aporte de Valor (1 pregunta abierta).
+- Implementar Motor de Calificación Automática: Desarrollar una función en JS llamada calcularScoreIngreso(respuestas) que se ejecute antes de enviar los datos a Supabase. 
+    - Esta función debe asignarle un peso (del 1 al 5) a las respuestas cerradas (5 respuestas posibles por pregunta cerrada) y devolver un "Puntaje de Compatibilidad" global. 
+
+Implementar una columna de tipo JSONB llamada respuestas_evaluacion dentro de la tabla candidatos.
+a. Crear Función registrarCandidato(payload): Crear la función asíncrona que reciba el objeto de datos desde un formulario, valide que los campos no estén vacíos, y ejecute el INSERT en Supabase.
+b. Crear Función obtenerListaCandidatos(): Crear la consulta (SELECT) que extraiga todos los candidatos ordenados por fecha_registro descendente. 
+

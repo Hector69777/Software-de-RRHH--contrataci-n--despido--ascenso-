@@ -49,3 +49,44 @@ CREATE TABLE IF NOT EXISTS evaluacion360 (
 );
 
 COMMENT ON TABLE evaluacion360 IS 'Tabla de evaluación 360 para el sistema SIA de Premium Consultores';
+
+-- Crear tabla de candidatos
+CREATE TABLE IF NOT EXISTS candidatos (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    cedula TEXT UNIQUE NOT NULL,
+    nombre TEXT NOT NULL,
+    telefono TEXT,
+    cv_url TEXT,
+    departamento_deseado TEXT DEFAULT 'Finanzas',
+    años_experiencia INT2 DEFAULT 0,
+    formacion TEXT CHECK (formacion IN ('Secundaria', 'Técnico', 'Universitaria', 'PostGrado', 'Doctorado')),
+    respuestas_evaluacion JSONB,
+    fecha_registro TIMESTAMPTZ DEFAULT NOW()
+);
+
+COMMENT ON TABLE candidatos IS 'Tabla para el módulo de reclutamiento de Premium Consultores';
+
+-- Insertar un candidato de prueba con la estructura JSONB correcta
+INSERT INTO candidatos (cedula, nombre, telefono, departamento_deseado, años_experiencia, formacion, respuestas_evaluacion)
+VALUES (
+    'V-28123456', 
+    'María González', 
+    '0414-1234567', 
+    'Finanzas', 
+    5, 
+    'Universitaria',
+    '{
+        "contaduria_1": {
+            "texto": "Tengo experiencia analizando balances generales.",
+            "puntaje": 8
+        },
+        "agilidad_1": {
+            "texto": "Priorizo tareas según su impacto financiero.",
+            "puntaje": 10
+        },
+        "aporte_valor": {
+            "texto": "Puedo automatizar los reportes financieros usando macros y Python.",
+            "puntaje": null
+        }
+    }'::jsonb
+);
