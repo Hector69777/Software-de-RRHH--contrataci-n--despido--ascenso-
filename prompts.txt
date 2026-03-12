@@ -63,6 +63,10 @@ Categoría D: Aporte de Valor (1 pregunta abierta).
 Implementar una columna de tipo JSONB llamada respuestas_evaluacion dentro de la tabla candidatos.
 a. Crear Función registrarCandidato(payload): Crear la función asíncrona que reciba el objeto de datos desde un formulario, valide que los campos no estén vacíos, y ejecute el INSERT en Supabase.
 b. Crear Función obtenerListaCandidatos(): Crear la consulta (SELECT) que extraiga todos los candidatos ordenados por fecha_registro descendente. 
+c. Crear una función asíncrona llamada contratarCandidato(candidatoData, cargoAsignado).
+d. Realizar función actaulizarEvaluacionCandidato(candidatoId, respuestasCrudas), para su guardado en la base de datos. 
+e. Realizar función buscarCandidatoPorCedula(cedula) para su busqueda en la base de datos y en la barra de busqueda.
+f. Realizar función eliminarCandidato(candidatoId) para su eliminación en la base de datos. 
 
 -- Listo modulo de contratacion
 -- Modulo de Ascensos: usando tabla empleado, implementando una evalaucion360 para permitir su ascenso o despido.

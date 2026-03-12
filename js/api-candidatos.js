@@ -129,7 +129,8 @@ export async function obtenerListaCandidatos() {
                 departamento_deseado,
                 años_experiencia,
                 formacion,
-                fecha_registro
+                fecha_registro,
+                estado
             `)
             .order('fecha_registro', { ascending: false });
 
@@ -217,12 +218,177 @@ export function calcularScoreIngreso(respuestasCandidato) {
  * @returns {Promise<boolean>} Retorna true si la actualización fue exitosa, false en caso contrario.
  */
 export async function guardarEvaluacionCandidato(candidatoId, resultados) {
-    if (!candidatoId || !resultados) return false;
+    if (!candidatoId || !resultados) return null;
+
+    try {
+        const { data, error } = await supabase
+            .from('candidatos')
+            .update({ 
+                respuestas_evaluacion: resultados,
+                estado: 'Evaluado'
+            })
+            .eq('id', candidatoId)
+            .select();
+
+        if (error) {
+            throw error;
+        }
+
+        return data && data.length > 0 ? data[0] : null;
+    } catch (error) {
+        console.error('Error guardando respuestas de evaluación:', error);
+        return null;
+    }
+}
+
+/**
+ * Obtiene el cuestionario de evaluación (banco de preguntas).
+ * Ideal para ser llamado desde el Frontend al hacer clic en "Evaluar".
+ * @returns {Array} El banco de preguntas en formato JSON.
+ */
+export function obtenerCuestionario() {
+    return bancoPreguntas;
+}
+
+/**
+ * Procesa las respuestas del formulario de evaluación, calcula el score
+ * y guarda los resultados oficiales en la base de datos para el candidato indicado.
+ * @param {string} candidatoId - El ID (UUID) del candidato que se está evaluando.
+ * @param {Object} respuestasCrudas - Objeto con las respuestas de la prueba.
+ * @returns {Promise<Object|null>} El objeto final de resultados o null si hubo error.
+ */
+export async function actualizarEvaluacionCandidato(candidatoId, respuestasCrudas) {
+    if (!candidatoId || !respuestasCrudas) return { success: false, error: 'Requisitos faltantes' };
+
+    try {
+        // 1. Procesar respuestas y obtener el objeto completo con status y porcentajes
+        const resultadosCalculados = calcularScoreIngreso(respuestasCrudas);
+
+        // Además, podemos inyectar las respuestas puras para tener el registro completo
+        resultadosCalculados.respuestas_crudas = respuestasCrudas;
+
+        // 2. Inyectar en la base de datos usando la función de update
+        const registroActualizado = await guardarEvaluacionCandidato(candidatoId, resultadosCalculados);
+
+        if (registroActualizado) {
+            return { success: true, data: registroActualizado };
+        } else {
+            console.error('No se pudo guardar la evaluación en Supabase.');
+            return { success: false, error: 'Fallo al actualizar el registro en BD' };
+        }
+    } catch (error) {
+        console.error('Error al actualizar evaluación del candidato:', error);
+        return { success: false, error };
+    }
+}
+
+/**
+ * Función para contratar a un candidato evaluado.
+ * Traslada los datos del candidato a la tabla empleado y actualiza el estado del candidato a "Contratado".
+ * @param {Object} candidatoData - Objeto de datos del candidato que debe contener sus atributos y estado.
+ * @param {string|null} cargoAsignado - Cargo que se le va a asignar en la tabla empleado (proveído por el usuario).
+ * @returns {Promise<Object>} Resultado de la operación, indicando éxito o fracaso.
+ */
+export async function contratarCandidato(candidatoData, cargoAsignado) {
+    try {
+        // 1. Validar que tengamos datos, el ID y que el estado sea el indicado
+        if (!candidatoData || !candidatoData.id) {
+            return { success: false, error: 'Faltan datos del candidato o su ID selector.' };
+        }
+
+        if (candidatoData.estado !== 'Evaluado') {
+            return { success: false, error: 'El candidato seleccionado no se encuentra en estado Evaluado para ser contratado.' };
+        }
+
+        // 2. Crear mapeo para la tabla empleado
+        // Ya que la BD exige NUMERIC para cedula y tlf, sanitizamos las cadenas eliminando caracteres no numéricos (ej. 'V-', guiones)
+        const cedulaLimpia = candidatoData.cedula ? Number(String(candidatoData.cedula).replace(/\\D/g, '')) : null;
+        const telefonoLimpio = candidatoData.telefono ? Number(String(candidatoData.telefono).replace(/\\D/g, '')) : null;
+        
+        const cargoFinal = cargoAsignado && cargoAsignado.trim() !== '' ? cargoAsignado.trim() : null;
+
+        const nuevoEmpleado = {
+            cedula: cedulaLimpia,
+            nombre: candidatoData.nombre,
+            cargo: cargoFinal,
+            contratado: true,
+            tlf: telefonoLimpio,
+            departamento: candidatoData.departamento_deseado || candidatoData.departamento // Por si cambian el nombre del key
+        };
+
+        // 3. Ejecutar Insert en tabla empleado primero
+        const { error: insertError } = await supabase
+            .from('empleado')
+            .insert([nuevoEmpleado]);
+
+        if (insertError) {
+            throw insertError;
+        }
+
+        // Al finalizar exitosamente el Insert, hacemos el update en candidatos "estado: 'Contratado'"
+        const { error: updateError } = await supabase
+            .from('candidatos')
+            .update({ estado: 'Contratado' })
+            .eq('id', candidatoData.id);
+
+        if (updateError) {
+            console.warn('Alerta: Empleado creado, pero falló la actualización del estatus en candidatos.', updateError);
+            throw updateError; 
+        }
+
+        return { success: true, message: 'Candidato formalmente contratado e insertado como empleado exitosamente.' };
+
+    } catch (error) {
+        console.error('Error durante la contratación del candidato:', error);
+        return { success: false, error };
+    }
+}
+
+/**
+ * Busca un único candidato en la base de datos utilizando su número de cédula.
+ * @param {string} cedula - El número de cédula a buscar.
+ * @returns {Promise<Object|null>} El objeto del candidato si existe, o null si no se encuentra o hay error.
+ */
+export async function buscarCandidatoPorCedula(cedula) {
+    if (!cedula) return null;
+
+    try {
+        const { data, error } = await supabase
+            .from('candidatos')
+            .select('*')
+            .eq('cedula', cedula)
+            .single();
+
+        if (error) {
+            // Error con code 'PGRST116' significa que no encontró ninguna fila (es un Single result).
+            // Lo manejamos retornando null sin ensuciar la consola con el error, a menos que sea un error diferente.
+            if (error.code !== 'PGRST116') {
+                throw error;
+            }
+            return null;
+        }
+
+        return data;
+    } catch (error) {
+        console.error('Error buscando candidato por cédula:', error);
+        return null;
+    }
+}
+
+/**
+ * Elimina a un candidato específico de la base de datos basándose en su ID.
+ * Nota para MVP: Esta función elimina la fila en la tabla PostgreSQL 'candidatos', 
+ * pero el archivo físico del CV en el bucket de Storage permanecerá allí y no será borrado.
+ * @param {string} candidatoId - El UUID del candidato a eliminar.
+ * @returns {Promise<boolean>} true si la eliminación fue exitosa, false en caso contrario.
+ */
+export async function eliminarCandidato(candidatoId) {
+    if (!candidatoId) return false;
 
     try {
         const { error } = await supabase
             .from('candidatos')
-            .update({ respuestas_evaluacion: resultados })
+            .delete()
             .eq('id', candidatoId);
 
         if (error) {
@@ -231,7 +397,7 @@ export async function guardarEvaluacionCandidato(candidatoId, resultados) {
 
         return true;
     } catch (error) {
-        console.error('Error guardando respuestas de evaluación:', error);
+        console.error('Error eliminando candidato:', error);
         return false;
     }
 }
