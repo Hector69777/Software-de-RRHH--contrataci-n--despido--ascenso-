@@ -64,3 +64,8 @@ Implementar una columna de tipo JSONB llamada respuestas_evaluacion dentro de la
 a. Crear Función registrarCandidato(payload): Crear la función asíncrona que reciba el objeto de datos desde un formulario, valide que los campos no estén vacíos, y ejecute el INSERT en Supabase.
 b. Crear Función obtenerListaCandidatos(): Crear la consulta (SELECT) que extraiga todos los candidatos ordenados por fecha_registro descendente. 
 
+-- Listo modulo de contratacion
+-- Modulo de Ascensos: usando tabla empleado, implementando una evalaucion360 para permitir su ascenso o despido.
+-- Modulo Reporte de evaluacion360: reporte detallado con la evaluacion360 de un empleado, información detallada de brechas, recomendaciones y gráfico de radar.
+
+

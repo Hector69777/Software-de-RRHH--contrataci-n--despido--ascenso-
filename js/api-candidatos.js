@@ -1,4 +1,5 @@
 import { supabase } from './supabase.js';
+import { bancoPreguntas } from './bancoPreguntas.js';
 
 /**
  * Inserta un nuevo candidato en la base de datos de Supabase.
@@ -111,14 +112,25 @@ export async function procesarFormularioCandidato(formElement) {
 }
 
 /**
- * Obtiene la lista completa de candidatos, ordenada por fecha de registro descendente.
+ * Obtiene la lista parcial de candidatos (excluyendo la evaluación de ingreso y campos pesados como respuestas_evaluacion),
+ * ordenada por fecha de registro descendente.
  * @returns {Promise<Array|null>} Array con los datos de los candidatos o null si hay error.
  */
 export async function obtenerListaCandidatos() {
     try {
         const { data, error } = await supabase
             .from('candidatos')
-            .select('*')
+            .select(`
+                id,
+                cedula,
+                nombre,
+                telefono,
+                cv_url,
+                departamento_deseado,
+                años_experiencia,
+                formacion,
+                fecha_registro
+            `)
             .order('fecha_registro', { ascending: false });
 
         if (error) {
@@ -129,5 +141,97 @@ export async function obtenerListaCandidatos() {
     } catch (error) {
         console.error('Error obteniendo lista de candidatos:', error);
         return null;
+    }
+}
+
+/**
+ * Motor de Calificación Automática: Evalúa las respuestas proporcionadas por el candidato
+ * frente al banco de preguntas y calcula un "Puntaje de Compatibilidad" global y desglosado.
+ * @param {Object} respuestasCandidato - Objeto donde las claves son los IDs de pregunta (ej. 'fin_01') 
+ * y los valores son los textos seleccionados de las opciones de respuesta.
+ * @returns {Object} Un objeto con el desglose de puntajes por categoría, puntaje total, puntaje máximo posible y porcentaje.
+ */
+export function calcularScoreIngreso(respuestasCandidato) {
+    let scoreTotal = 0;
+    let scoreMaximoPosible = 0;
+    const desglosePorCategoria = {};
+
+    // Inicializar desglose
+    bancoPreguntas.forEach(pregunta => {
+        if (!desglosePorCategoria[pregunta.categoria]) {
+            desglosePorCategoria[pregunta.categoria] = { obtenido: 0, maximo: 0 };
+        }
+    });
+
+    bancoPreguntas.forEach(pregunta => {
+        // Obviamos preguntas abiertas del cálculo matemático puro
+        if (pregunta.tipo === 'abierta') return;
+        
+        // Sumamos el máximo posible de esta pregunta al total
+        // Asumiendo que las opciones siempre están ordenadas o buscamos el valor máximo
+        const valorMaximoPregunta = Math.max(...pregunta.opciones.map(op => op.valor));
+        scoreMaximoPosible += valorMaximoPregunta;
+        desglosePorCategoria[pregunta.categoria].maximo += valorMaximoPregunta;
+
+        // Buscar qué respondió el candidato
+        const respuestaDada = respuestasCandidato[pregunta.id];
+        
+        if (respuestaDada) {
+            // Encontrar el valor asociado a esa respuesta en el banco
+            const opcionDada = pregunta.opciones.find(op => op.texto === respuestaDada);
+            if (opcionDada) {
+                const valorObtenido = opcionDada.valor;
+                scoreTotal += valorObtenido;
+                desglosePorCategoria[pregunta.categoria].obtenido += valorObtenido;
+            }
+        }
+    });
+
+    const porcentajeGlobal = scoreMaximoPosible > 0 
+        ? ((scoreTotal / scoreMaximoPosible) * 100).toFixed(2) 
+        : 0;
+
+    const compatibilidadNumerica = parseFloat(porcentajeGlobal);
+    let statusFormula = "No Recomendado";
+
+    if (compatibilidadNumerica >= 85) {
+        statusFormula = "Recomendado";
+    } else if (compatibilidadNumerica >= 65) {
+        statusFormula = "Observación";
+    }
+
+    return {
+        puntaje_total: scoreTotal,
+        puntajeMaximo: scoreMaximoPosible,
+        porcentaje_compatibilidad: compatibilidadNumerica,
+        status: statusFormula,
+        desglose: desglosePorCategoria // Permite ver puntajes individuales por categoría  
+    };
+}
+
+/**
+ * Guarda los resultados de la evaluación del motor automático en el perfil del candidato.
+ * Actualiza la columna respuestas_evaluacion (tipo JSONB) con el objeto generado.
+ * @param {string} candidatoId - El UUID del candidato en las bases de datos.
+ * @param {Object} resultados - El objeto generado por calcularScoreIngreso().
+ * @returns {Promise<boolean>} Retorna true si la actualización fue exitosa, false en caso contrario.
+ */
+export async function guardarEvaluacionCandidato(candidatoId, resultados) {
+    if (!candidatoId || !resultados) return false;
+
+    try {
+        const { error } = await supabase
+            .from('candidatos')
+            .update({ respuestas_evaluacion: resultados })
+            .eq('id', candidatoId);
+
+        if (error) {
+            throw error;
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Error guardando respuestas de evaluación:', error);
+        return false;
     }
 }
