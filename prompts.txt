@@ -70,6 +70,12 @@ f. Realizar función eliminarCandidato(candidatoId) para su eliminación en la b
 
 -- Listo modulo de contratacion
 -- Modulo de Ascensos: usando tabla empleado, implementando una evalaucion360 para permitir su ascenso o despido.
+1. Traer los datos de la tabla empleado y mostrarlos en la tabla de ascensos a traves de una función obtenerListaEmpleados().
+2. Implementar una evalaucion360 para permitir su ascenso o despido. Con su JSON, procesarEvaluacion360(respuestasCrudas) y guardarEvaluacion360.
+3. Realizar función actaulizarEvaluacionEmpleados(candidatoId, respuestasCrudas), para su guardado en la base de datos. 
+4. Realizar función buscarEmpleadosPorCedula(cedula) para su busqueda en la base de datos y en la barra de busqueda.
+5. Realizar función eliminarEmpleados(candidatoId) para su eliminación en la base de datos. 
+// Listo Modulo de Ascensos.
 -- Modulo Reporte de evaluacion360: reporte detallado con la evaluacion360 de un empleado, información detallada de brechas, recomendaciones y gráfico de radar.
 
 

@@ -313,7 +313,9 @@ export async function contratarCandidato(candidatoData, cargoAsignado) {
             cargo: cargoFinal,
             contratado: true,
             tlf: telefonoLimpio,
-            departamento: candidatoData.departamento_deseado || candidatoData.departamento // Por si cambian el nombre del key
+            departamento: candidatoData.departamento_deseado || candidatoData.departamento, // Por si cambian el nombre del key
+            revisado: 'Pendiente',
+            respuestas_evaluacion360: null
         };
 
         // 3. Ejecutar Insert en tabla empleado primero
