@@ -287,9 +287,10 @@ export async function actualizarEvaluacionCandidato(candidatoId, respuestasCruda
  * Traslada los datos del candidato a la tabla empleado y actualiza el estado del candidato a "Contratado".
  * @param {Object} candidatoData - Objeto de datos del candidato que debe contener sus atributos y estado.
  * @param {string|null} cargoAsignado - Cargo que se le va a asignar en la tabla empleado (proveído por el usuario).
+ * @param {number|string} salarioAsignado - Salario asigando (proveído por el usuario, default 0).
  * @returns {Promise<Object>} Resultado de la operación, indicando éxito o fracaso.
  */
-export async function contratarCandidato(candidatoData, cargoAsignado) {
+export async function contratarCandidato(candidatoData, cargoAsignado, salarioAsignado = 0) {
     try {
         // 1. Validar que tengamos datos, el ID y que el estado sea el indicado
         if (!candidatoData || !candidatoData.id) {
@@ -306,6 +307,7 @@ export async function contratarCandidato(candidatoData, cargoAsignado) {
         const telefonoLimpio = candidatoData.telefono ? Number(String(candidatoData.telefono).replace(/\\D/g, '')) : null;
         
         const cargoFinal = cargoAsignado && cargoAsignado.trim() !== '' ? cargoAsignado.trim() : null;
+        const salarioFinal = isNaN(Number(salarioAsignado)) ? 0 : Number(salarioAsignado);
 
         const nuevoEmpleado = {
             cedula: cedulaLimpia,
@@ -315,7 +317,9 @@ export async function contratarCandidato(candidatoData, cargoAsignado) {
             tlf: telefonoLimpio,
             departamento: candidatoData.departamento_deseado || candidatoData.departamento, // Por si cambian el nombre del key
             revisado: 'Pendiente',
-            respuestas_evaluacion360: null
+            respuestas_evaluacion360: null,
+            puntuacion_general: 0,
+            salario: salarioFinal
         };
 
         // 3. Ejecutar Insert en tabla empleado primero

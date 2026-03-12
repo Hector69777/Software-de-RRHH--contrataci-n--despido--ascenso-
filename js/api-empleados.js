@@ -145,10 +145,34 @@ export async function guardarEvaluacion360(empleadoId, respuestasCrudas, evaluad
         // 4. Agregar la nueva evaluación al historial
         historial.push(nuevaEvaluacion);
 
-        // 5. Inyectar de vuelta en la BD (Update)
+        // 5. Calcular el nuevo promedio general (puntuacion_general) usando .reduce()
+        const sumaPonderados = historial.reduce((acc, evalItem) => acc + evalItem.puntaje_ponderado, 0);
+        const nuevoPromedio = sumaPonderados / historial.length;
+
+        // 5.1. Determinar el estado 'revisado' basado en el statusSugerido de la evaluación final del array
+        // (Usamos el status global basado en el nuevo promedio)
+        const porcentajeGlobal = nuevoPromedio * 100; // nuevoPromedio ya es un decimal (ej. 0.94)
+        let estadoRevisado = "Despedido";
+
+        if (porcentajeGlobal >= 85) {
+            estadoRevisado = "Ascendido";
+            // Validar Red Flag general sobre del historico (opcional: o solo de la nuevaEval)
+            // Por simplicidad usaremos el estatus sugerido de la *nueva evaluación* para dictaminar el nuevo estado
+            if (nuevaEvaluacion.status === "Mantener Posición (Alerta de Actitud)") {
+                 estadoRevisado = "Revisado";
+            }
+        } else if (porcentajeGlobal >= 65) {
+            estadoRevisado = "Revisado";
+        }
+
+        // 6. Inyectar de vuelta en la BD (Update)
         const { data: registroActualizado, error: updateError } = await supabase
             .from('empleado')
-            .update({ respuestas_evaluacion360: historial })
+            .update({ 
+                respuestas_evaluacion360: historial,
+                puntuacion_general: Number(nuevoPromedio.toFixed(2)),
+                revisado: estadoRevisado
+            })
             .eq('id', empleadoId)
             .select();
 
@@ -191,20 +215,87 @@ export async function buscarEmpleadosPorCedula(cedula) {
 
 /**
  * 5. Elimina un empleado de la Base de datos (Despido).
+ * Requiere que el campo 'revisado' del empleado sea "Despedido" basado en su última evaluación 360.
  */
-export async function eliminarEmpleados(empleadoId) {
-    if (!empleadoId) return false;
+export async function eliminarEmpleado(empleadoId) {
+    if (!empleadoId) return { success: false, error: "ID no provisto" };
 
     try {
+        // 1. Validar pre-requisito
+        const { data: emp, error: fetchErr } = await supabase
+            .from('empleado')
+            .select('revisado')
+            .eq('id', empleadoId)
+            .single();
+
+        if (fetchErr) throw fetchErr;
+
+        if (emp.revisado !== 'Despedido') {
+            return { success: false, error: 'Acción bloqueada: El empleado no cumple con el estado "Despedido".' };
+        }
+
+        // 2. Ejecutar borrado
         const { error } = await supabase
             .from('empleado')
             .delete()
             .eq('id', empleadoId);
 
         if (error) throw error;
-        return true;
+        return { success: true };
     } catch (error) {
         console.error('Error eliminando al empleado:', error);
-        return false;
+        return { success: false, error };
+    }
+}
+
+/**
+ * 6. Promover a un empleado, asignando un nuevo cargo, nuevo salario y cambiando
+ *    su estatus de revisión a 'Ascenso'.
+ * Requiere que el campo 'revisado' del empleado sea "Ascendido"
+ * @param {string} empleadoId - UUID del empleado
+ * @param {string} nuevoCargo - Nuevo cargo asignado (ej. "Director General")
+ * @param {number|string} nuevoSalario - Nuevo salario asignado (ej. 2500)
+ */
+export async function promoverEmpleado(empleadoId, nuevoCargo = "Director General", nuevoSalario = 2500) {
+    if (!empleadoId || !nuevoCargo || nuevoSalario === undefined) {
+        return { success: false, error: 'Faltan parámetros requeridos para la promoción.' };
+    }
+
+    const salarioFinal = Number(nuevoSalario);
+    if (isNaN(salarioFinal)) {
+        return { success: false, error: 'El salario debe ser de tipo numérico.' };
+    }
+
+    try {
+        // 1. Obtener y validar el pre-requisito
+        const { data: emp, error: fetchErr } = await supabase
+            .from('empleado')
+            .select('revisado')
+            .eq('id', empleadoId)
+            .single();
+
+        if (fetchErr) throw fetchErr;
+        
+        if (emp.revisado !== 'Ascendido') {
+            return { success: false, error: 'Acción bloqueada: El empleado no cumple con el estado "Ascendido".' };
+        }
+
+        // 2. Proceder con el update de Promoción
+        const { data, error } = await supabase
+            .from('empleado')
+            .update({
+                cargo: nuevoCargo,
+                salario: salarioFinal,
+                revisado: 'Ascenso'
+            })
+            .eq('id', empleadoId)
+            .select();
+
+        if (error) throw error;
+
+        return { success: true, data: data && data.length > 0 ? data[0] : null };
+    } catch (error) {
+        console.error('Error promoviendo al empleado:', error);
+        return { success: false, error };
     }
 }

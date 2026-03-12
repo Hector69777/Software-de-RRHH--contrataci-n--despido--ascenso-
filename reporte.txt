@@ -1,0 +1,25 @@
+REPORTE GLOBAL DE ESTADO: FRONTEND vs BACKEND
+
+Tras analizar detenidamente la carpeta `app/src` creada por el desarrollador Frontend (Vite + React + TypeScript), presento el siguiente diagnóstico sobre la integración, puntos débiles y fisuras en relación al backend que hemos construido:
+
+1. DUPLICACIÓN MASIVA DE LÓGICA (EL MAYOR PROBLEMA)
+El Frontend no está consumiendo los archivos backend que construimos (`js/api-candidatos.js` o `js/api-empleados.js`). En su lugar, el desarrollador Frontend creó su propio archivo `app/src/supabase/index.ts` donde reescribió y conectó directamente todas las operaciones a Supabase.
+- Fisura: Tienen su propia copia de `calcularScoreIngreso`, `subirCV`, `actualizarEvaluacionCandidato`, etc. Esto significa que si nosotros cambiamos una regla de negocio en el backend (ej. el Red Flag de Trabajo en Equipo), el frontend no se enterará porque usa su propia fórmula empotrada.
+
+2. VULNERABILIDAD ARQUITECTÓNICA Y DE SEGURIDAD
+Al empotrar funciones como `calcularScoreIngreso` directamente en React, el cálculo matemático y las respuestas correctas de las evaluaciones viajan al navegador del cliente. Un usuario intermedio podría inspeccionar el código del navegador, ver cuánto vale cada opción y manipular el resultado. La arquitectura ideal dictaba que el Frontend solo recolectara datos y llamara a nuestras funciones Backend para procesarlos de forma segura.
+
+3. DISCREPANCIAS EN EL ESQUEMA DE DATOS (MAPPING)
+- El frontend está usando la propiedad `anos_experiencia` (con "n") en su interfaz TS, mientras que en la BD y en nuestro backend definimos `años_experiencia` (con "ñ").
+- El Frontend ignora completamente la existencia del nuevo campo `revisado: 'Pendiente'` que acabamos de agregar para el flujo de contratación.
+
+4. FUNCIONES FALTANTES (TRABAJO INCOMPLETO)
+- Funcionalidad de Contratación Vacía: En el archivo `CandidatesTable.tsx`, la función `handleHireCandidate` está comentada con un `// TODO`. El frontend no tiene idea de cómo trasladar un candidato a la tabla `empleado`. Nosotros ya tenemos esa lógica en `contratarCandidato()`.
+- Módulo de Ascensos Inexistente: No hay ni un solo archivo, ruta o componente (React hooks, UI, etc.) relacionado con la tabla `empleado` o las evaluaciones 360. El frontend actualmente solo cubre la primera mitad del proyecto (Candidatos).
+
+CONCLUSIÓN Y RECOMENDACIÓN:
+Existen dos caminos a partir de esta fisura:
+A) Refactorizar el Frontend: Exigirle al frontend que elimine `app/src/supabase/index.ts` y en su lugar importe y consuma exclusivamente nuestros archivos `api-candidatos.js` y `api-empleados.js`.
+B) Adaptarnos: Abstraer nuestra lógica al frontend (reescribir nuestras funciones en TypeScript dentro de su carpeta `lib`/`supabase`) y abandonar el backend en JS puro (la carpeta `js/` actual).
+
+Dado que mi rol es Backend, esperaré tus instrucciones sobre cómo procederemos con este descubrimiento.

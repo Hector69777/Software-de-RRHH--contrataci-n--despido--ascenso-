@@ -75,7 +75,14 @@ f. Realizar función eliminarCandidato(candidatoId) para su eliminación en la b
 3. Realizar función actaulizarEvaluacionEmpleados(candidatoId, respuestasCrudas), para su guardado en la base de datos. 
 4. Realizar función buscarEmpleadosPorCedula(cedula) para su busqueda en la base de datos y en la barra de busqueda.
 5. Realizar función eliminarEmpleados(candidatoId) para su eliminación en la base de datos. 
+6. Realizar funcion promoverEmpleado(empleadoId, nuevoCargo, nuevoSalario)
+7. Realizar funcion eliminarEmpleado(empleadoId)
 // Listo Modulo de Ascensos.
--- Modulo Reporte de evaluacion360: reporte detallado con la evaluacion360 de un empleado, información detallada de brechas, recomendaciones y gráfico de radar.
+-- Modulo Reporte de evaluacion360: reporte detallado con la evaluacion360 de un empleado, información detallada de brechas, recomendaciones y gráfico de barras.
+1. Crear archivo api-reporte.js (el cual reemplazara a api-gestion.js que esta vacio).
+2. Realizar funcion obtenerEstadistica() Esta función debe hacer tres consultas a Supabase usando { count: 'exact', head: true } para no descargar datos innecesarios.
+3. Crear función asíncrona obtenerDatosUltimoAscenso().
+// Listo Modulo Reporte de evaluacion360.
 
+Necesidad prioritaria: activacion y conexion de la base de datos de supabase y el backend con el FrontEnd (app), para unificar el proyecto.
 
