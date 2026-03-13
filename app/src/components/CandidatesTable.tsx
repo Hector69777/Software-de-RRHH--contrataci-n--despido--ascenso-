@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
     obtenerListaCandidatos,
     eliminarCandidatoPorCedula,
     contratarCandidato,
+    buscarCandidatosPorTermino,
     type CandidateData,
 } from "../supabase";
 import EvaluationModal from "./EvaluationModal";
@@ -17,6 +18,8 @@ export default function CandidatesTable() {
     const [candidates, setCandidates] = useState<CandidateData[]>([]);
     const [loading, setLoading] = useState(false);
     const [evaluando, setEvaluando] = useState<CandidateData | null>(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const fetchCandidates = async () => {
         setLoading(true);
@@ -30,6 +33,22 @@ export default function CandidatesTable() {
             await fetchCandidates();
         })();
     }, []);
+
+    // Búsqueda con debounce de 400ms
+    useEffect(() => {
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(async () => {
+            if (searchTerm.trim() === "") {
+                await fetchCandidates();
+            } else {
+                setLoading(true);
+                const results = await buscarCandidatosPorTermino(searchTerm);
+                if (results !== null) setCandidates(results);
+                setLoading(false);
+            }
+        }, 400);
+        return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+    }, [searchTerm]);
 
     const handleHireCandidate = async (candidate: CandidateData) => {
         if (candidate.estado !== 'Evaluado') {
@@ -74,6 +93,25 @@ export default function CandidatesTable() {
                 >
                     {loading ? "Cargando..." : "↻ Refrescar"}
                 </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="relative">
+                <input
+                    type="text"
+                    placeholder="🔍 Buscar por cédula, nombre, departamento, formación..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-lg bg-slate-800 border border-slate-600 text-slate-200 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                />
+                {searchTerm && (
+                    <button
+                        onClick={() => setSearchTerm("")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-sm"
+                    >
+                        ✕
+                    </button>
+                )}
             </div>
 
             <div className="rounded-xl border border-slate-700 overflow-hidden">

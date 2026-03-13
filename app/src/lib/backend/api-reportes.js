@@ -153,3 +153,28 @@ export async function obtenerDatosUltimoEvaluado() {
         return null;
     }
 }
+
+/**
+ * Marca a un empleado como prioridad para el reporte,
+ * actualizando su fecha_ultima_evaluacion a NOW.
+ * Esto hace que aparezca como el empleado activo en el Dashboard de Reportes.
+ * 
+ * @param {string} empleadoId - UUID del empleado
+ * @returns {Promise<Object>} { success: boolean, error?: string }
+ */
+export async function marcarParaReporte(empleadoId) {
+    if (!empleadoId) return { success: false, error: 'ID de empleado requerido' };
+    
+    try {
+        const { error } = await supabase
+            .from('empleado')
+            .update({ fecha_ultima_evaluacion: new Date().toISOString() })
+            .eq('id', empleadoId);
+
+        if (error) throw error;
+        return { success: true };
+    } catch (error) {
+        console.error('Error marcando empleado para reporte:', error);
+        return { success: false, error: error.message || 'Error desconocido' };
+    }
+}

@@ -407,3 +407,25 @@ export async function eliminarCandidato(candidatoId) {
         return false;
     }
 }
+
+/**
+ * Búsqueda inteligente de candidatos usando la función RPC de PostgreSQL.
+ * Busca coincidencias parciales (case-insensitive) en: cédula, nombre, departamento, formación, teléfono.
+ * 
+ * @param {string} termino - Texto a buscar
+ * @returns {Promise<Array|null>} Lista de candidatos que coinciden
+ */
+export async function buscarCandidatos(termino) {
+    if (!termino || termino.trim() === '') return null; // null = sin filtro, usar lista completa
+
+    try {
+        const { data, error } = await supabase
+            .rpc('buscar_candidatos', { termino: termino.trim() });
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('Error en búsqueda de candidatos:', error);
+        return null;
+    }
+}

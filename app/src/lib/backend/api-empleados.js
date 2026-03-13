@@ -319,3 +319,25 @@ export async function promoverEmpleado(empleadoId, nuevoCargo = "Director Genera
         return { success: false, error };
     }
 }
+
+/**
+ * Búsqueda inteligente de empleados usando la función RPC de PostgreSQL.
+ * Busca coincidencias parciales (case-insensitive) en: cédula, nombre, cargo, departamento, estatus.
+ * 
+ * @param {string} termino - Texto a buscar
+ * @returns {Promise<Array|null>} Lista de empleados que coinciden
+ */
+export async function buscarEmpleados(termino) {
+    if (!termino || termino.trim() === '') return null; // null = sin filtro, usar lista completa
+
+    try {
+        const { data, error } = await supabase
+            .rpc('buscar_empleados', { termino: termino.trim() });
+
+        if (error) throw error;
+        return data || [];
+    } catch (error) {
+        console.error('Error en búsqueda de empleados:', error);
+        return null;
+    }
+}

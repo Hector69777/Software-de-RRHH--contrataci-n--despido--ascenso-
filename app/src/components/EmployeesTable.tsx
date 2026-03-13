@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router";
 import {
     obtenerListaEmpleados,
     eliminarEmpleadoDefinitivo,
     promoverEmpleadoAscenso,
+    marcarEmpleadoParaReporte,
+    buscarEmpleadosPorTermino,
     type EmpleadoData,
 } from "../supabase";
 import Evaluation360Modal from "./Evaluation360Modal";
@@ -18,6 +21,9 @@ export default function EmployeesTable() {
     const [empleados, setEmpleados] = useState<EmpleadoData[]>([]);
     const [loading, setLoading] = useState(false);
     const [evaluando, setEvaluando] = useState<EmpleadoData | null>(null);
+    const navigate = useNavigate();
+    const [searchTerm, setSearchTerm] = useState("");
+    const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const fetchEmpleados = async () => {
         setLoading(true);
@@ -31,6 +37,22 @@ export default function EmployeesTable() {
             await fetchEmpleados();
         })();
     }, []);
+
+    // Búsqueda con debounce de 400ms
+    useEffect(() => {
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(async () => {
+            if (searchTerm.trim() === "") {
+                await fetchEmpleados();
+            } else {
+                setLoading(true);
+                const results = await buscarEmpleadosPorTermino(searchTerm);
+                if (results !== null) setEmpleados(results);
+                setLoading(false);
+            }
+        }, 400);
+        return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+    }, [searchTerm]);
 
     const handlePromote = async (empleado: EmpleadoData) => {
         if (empleado.revisado !== 'Ascendido') {
@@ -79,6 +101,21 @@ export default function EmployeesTable() {
         setLoading(false);
     };
 
+    const handleVerReporte = async (empleado: EmpleadoData) => {
+        if (empleado.puntuacion_general === null || empleado.puntuacion_general === undefined) {
+            alert("Este empleado no ha sido evaluado aún. Realiza una Evaluación 360 primero.");
+            return;
+        }
+        setLoading(true);
+        const result = await marcarEmpleadoParaReporte(empleado.id);
+        setLoading(false);
+        if (result.success) {
+            navigate('/reportes');
+        } else {
+            alert(`Error al generar reporte: ${result.error || 'Desconocido'}`);
+        }
+    };
+
     return (
         <div className="w-full mx-auto p-6 space-y-4 max-w-440">
             <div className="flex items-center justify-center gap-3">
@@ -90,6 +127,25 @@ export default function EmployeesTable() {
                 >
                     {loading ? "Cargando..." : "↻ Refrescar"}
                 </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="relative">
+                <input
+                    type="text"
+                    placeholder="🔍 Buscar por cédula, nombre, cargo, departamento, estatus..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-lg bg-slate-800 border border-slate-600 text-slate-200 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                />
+                {searchTerm && (
+                    <button
+                        onClick={() => setSearchTerm("")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-sm"
+                    >
+                        ✕
+                    </button>
+                )}
             </div>
 
             <div className="rounded-xl border border-slate-700 overflow-hidden">
@@ -174,6 +230,14 @@ export default function EmployeesTable() {
                                                     className="px-2 py-1 text-xs rounded bg-red-800 hover:bg-red-700 text-white transition-colors"
                                                 >
                                                     Despedir
+                                                </button>
+                                                <button
+                                                    onClick={() => handleVerReporte(empleado)}
+                                                    disabled={empleado.puntuacion_general === null || empleado.puntuacion_general === undefined}
+                                                    className="px-2 py-1 text-xs rounded bg-indigo-700 hover:bg-indigo-600 text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                                    title={empleado.puntuacion_general === null ? "Requiere evaluación 360 previa" : "Ver reporte detallado"}
+                                                >
+                                                    📊 Reporte
                                                 </button>
                                             </div>
                                         </td>

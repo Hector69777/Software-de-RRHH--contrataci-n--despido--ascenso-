@@ -1,11 +1,11 @@
 // @ts-ignore
 import { supabase } from "../lib/backend/supabase.js";
 // @ts-ignore
-import { insertarCandidato as bgInsertarCandidato, obtenerListaCandidatos as bgObtenerListaCandidatos, subirCV as bgSubirCV, procesarFormularioCandidato as bgRegistrarCandidato, eliminarCandidato as bgEliminarCandidato, actualizarEvaluacionCandidato as bgActualizarEvaluacionCandidato, contratarCandidato as bgContratarCandidato } from "../lib/backend/api-candidatos.js";
+import { insertarCandidato as bgInsertarCandidato, obtenerListaCandidatos as bgObtenerListaCandidatos, subirCV as bgSubirCV, procesarFormularioCandidato as bgRegistrarCandidato, eliminarCandidato as bgEliminarCandidato, actualizarEvaluacionCandidato as bgActualizarEvaluacionCandidato, contratarCandidato as bgContratarCandidato, buscarCandidatos as bgBuscarCandidatos } from "../lib/backend/api-candidatos.js";
 // @ts-ignore
-import { obtenerListaEmpleados as bgObtenerListaEmpleados, guardarEvaluacion360 as bgGuardarEvaluacion360, eliminarEmpleado as bgEliminarEmpleado, promoverEmpleado as bgPromoverEmpleado } from "../lib/backend/api-empleados.js";
+import { obtenerListaEmpleados as bgObtenerListaEmpleados, guardarEvaluacion360 as bgGuardarEvaluacion360, eliminarEmpleado as bgEliminarEmpleado, promoverEmpleado as bgPromoverEmpleado, buscarEmpleados as bgBuscarEmpleados } from "../lib/backend/api-empleados.js";
 // @ts-ignore
-import { obtenerEstadistica as bgObtenerEstadistica, obtenerDatosUltimoEvaluado as bgObtenerDatosUltimoEvaluado } from "../lib/backend/api-reportes.js";
+import { obtenerEstadistica as bgObtenerEstadistica, obtenerDatosUltimoEvaluado as bgObtenerDatosUltimoEvaluado, marcarParaReporte as bgMarcarParaReporte } from "../lib/backend/api-reportes.js";
 
 // Export the base client just in case UI needs pure auth or storage directly
 export { supabase };
@@ -185,3 +185,18 @@ export async function obtenerGraficoUltimaEvaluacion(): Promise<LatestEvalData |
     return await bgObtenerDatosUltimoEvaluado();
 }
 
+export async function marcarEmpleadoParaReporte(empleadoId: string): Promise<OperationResult> {
+    return await bgMarcarParaReporte(empleadoId);
+}
+
+// ---------------------------------------------------------
+// Search Module Wrappers
+// ---------------------------------------------------------
+
+export async function buscarCandidatosPorTermino(termino: string): Promise<CandidateData[] | null> {
+    return await bgBuscarCandidatos(termino);
+}
+
+export async function buscarEmpleadosPorTermino(termino: string): Promise<EmpleadoData[] | null> {
+    return await bgBuscarEmpleados(termino);
+}

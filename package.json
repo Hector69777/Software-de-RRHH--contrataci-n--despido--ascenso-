@@ -1,0 +1,23 @@
+{
+  "name": "sistema-rrhh",
+  "version": "1.0.0",
+  "description": "Sistema integral para la administración de recursos humanos, enfocado en contratación, evaluación y gestión de personal.",
+  "homepage": "https://github.com/Hector69777/Software-de-RRHH--contrataci-n--despido--ascenso-#readme",
+  "bugs": {
+    "url": "https://github.com/Hector69777/Software-de-RRHH--contrataci-n--despido--ascenso-/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hector69777/Software-de-RRHH--contrataci-n--despido--ascenso-.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "supabase": "^2.78.1"
+  }
+}
