@@ -147,22 +147,22 @@ npm run dev
 ## 📸 Visuales
 
 ### Vista de Candidatos
-![image-20260313081029688](C:\Users\hecto\Documents\Programacion\Universidad\Sistemas de Operacion\Software de RRHH (contratación, despido, ascenso)\anexos\image-20260313081029688.png)
+<img src="anexos/image-20260313081029688.png" alt="Vista de Candidatos" width="800">
 
 ### Evaluación de Ingreso
-![image-20260313081107628](C:\Users\hecto\Documents\Programacion\Universidad\Sistemas de Operacion\Software de RRHH (contratación, despido, ascenso)\anexos\image-20260313081107628.png)
+<img src="anexos/image-20260313081107628.png" alt="Evaluación de Ingreso" width="800">
 
 ### Vista de Empleados
-![image-20260313081133918](C:\Users\hecto\Documents\Programacion\Universidad\Sistemas de Operacion\Software de RRHH (contratación, despido, ascenso)\anexos\image-20260313081133918.png)
+<img src="anexos/image-20260313081133918.png" alt="Vista de Empleados" width="800">
 
-### Evaluación 360°
-![image-20260313081214168](C:\Users\hecto\Documents\Programacion\Universidad\Sistemas de Operacion\Software de RRHH (contratación, despido, ascenso)\anexos\image-20260313081214168.png)
+### Evaluación 360° 
+<img src="anexos/image-20260313081214168.png" alt="Evaluación 360" width="800">
 
 ### Dashboard de Reportes
-![image-20260313081237269](C:\Users\hecto\Documents\Programacion\Universidad\Sistemas de Operacion\Software de RRHH (contratación, despido, ascenso)\anexos\image-20260313081237269.png)
+<img src="anexos/image-20260313081237269.png" alt="Dashboard de Reportes" width="800">
 
 ### Búsqueda Inteligente
-![image-20260313081301740](C:\Users\hecto\Documents\Programacion\Universidad\Sistemas de Operacion\Software de RRHH (contratación, despido, ascenso)\anexos\image-20260313081301740.png)
+<img src="anexos/image-20260313081301740.png" alt="Búsqueda Inteligente" width="800">
 
 ---
 
@@ -194,31 +194,36 @@ Escribir cualquier término en la barra de búsqueda que aparece arriba de las t
 
 ```
 Software de RRHH/
+<<<<<<< HEAD
 ├── anexos/                           # Capturas de pantalla para la documentación
+=======
+├── anexos/                           # Screenshots para documentación y README
+>>>>>>> ab872f220708814123bbc06081927fca79550f3a
 ├── app/                              # Aplicación React (Vite + TypeScript)
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── CandidatesTable.tsx    # Tabla de candidatos con búsqueda
-│   │   │   ├── EmployeesTable.tsx     # Tabla de empleados con búsqueda
-│   │   │   ├── EvaluationModal.tsx    # Modal evaluación de ingreso
-│   │   │   ├── Evaluation360Modal.tsx # Modal evaluación 360°
-│   │   │   ├── ReportsDashboard.tsx   # Dashboard de reportes
-│   │   │   ├── NavBar.tsx             # Barra de navegación
-│   │   │   └── NewCandidateForm.tsx   # Formulario de registro
+│   │   │   ├── CandidatesTable.tsx    # Tabla de candidatos con búsqueda inteligente
+│   │   │   ├── EmployeesTable.tsx     # Tabla de empleados con búsqueda y reporte individual
+│   │   │   ├── EvaluationModal.tsx    # Modal de evaluación de ingreso
+│   │   │   ├── Evaluation360Modal.tsx # Modal de evaluación 360° por competencias
+│   │   │   ├── ReportsDashboard.tsx   # Dashboard de reportes con gráficos comparativos
+│   │   │   ├── NavBar.tsx             # Barra de navegación principal
+│   │   │   └── NewCandidateForm.tsx   # Registro de nuevos candidatos (Reclutamiento)
 │   │   ├── lib/backend/
-│   │   │   ├── api-candidatos.js      # API de candidatos (CRUD + búsqueda)
-│   │   │   ├── api-empleados.js       # API de empleados (CRUD + eval 360 + búsqueda)
-│   │   │   ├── api-reportes.js        # API de reportes y estadísticas
-│   │   │   ├── bancoPreguntas.js      # 10 preguntas de evaluación de ingreso
-│   │   │   ├── bancoPreguntas360.js   # 18 preguntas de evaluación 360
-│   │   │   ├── supabase.js            # Cliente Supabase
-│   │   │   └── config.js              # Variables de configuración
+│   │   │   ├── api-candidatos.js      # Lógica de candidatos (CRUD + búsqueda RPC)
+│   │   │   ├── api-empleados.js       # Lógica de empleados (Puntajes + Estatus + RPC)
+│   │   │   ├── api-reportes.js        # Lógica de estadísticas y perfil meta
+│   │   │   ├── bancoPreguntas.js      # 10 preguntas de ingreso
+│   │   │   ├── bancoPreguntas360.js   # 18 preguntas de desempeño 360°
+│   │   │   ├── supabase.js            # Inicialización del cliente Supabase
+│   │   │   └── config.js              # Gestión de URLs y Keys (Local/Nube)
 │   │   ├── supabase/
-│   │   │   └── index.ts               # Puente TypeScript (Backend JS ↔ React)
-│   │   ├── routes/                    # Páginas de la aplicación
-│   │   └── App.tsx                    # Router principal
-│   └── vite.config.ts
+│   │   │   └── index.ts               # Puente TypeScript (Interfaz Backend JS ↔ UI)
+│   │   ├── routes/                    # Páginas y vistas de la aplicación
+│   │   └── App.tsx                    # Componente raíz y Router
+│   └── vite.config.ts                # Configuración de compilación y Tailwind v4
 ├── sql/
+<<<<<<< HEAD
 │   ├── schema.sql                     # DDL de la base de datos
 │   ├── seed.sql                       # Datos de prueba
 │   └── busqueda_inteligente.sql       # Funciones RPC de búsqueda
@@ -226,6 +231,16 @@ Software de RRHH/
 │   └── config.toml                    # Configuración de puertos y servicios
 ├── README.md                          # Manual de usuario (copia de documentation.md)
 └── documentation.md                   # Documentación técnica y académica
+=======
+│   ├── schema.sql                     # Definición de tablas y constraints
+│   ├── seed.sql                       # Datos iniciales para pruebas
+│   └── busqueda_inteligente.sql       # Funciones RPC de búsqueda PostgreSQL
+├── supabase/                         # Configuración de Supabase Local (Docker)
+│   └── config.toml                    # Parámetros del stack local (Postgres, Studio, etc.)
+├── documentation.md                   # Documentación técnica y académica detallada
+├── README.md                          # Guía de uso y presentación para GitHub
+└── Juan Carlos Sánchez...pdf         # Documento del caso de estudio de referencia
+>>>>>>> ab872f220708814123bbc06081927fca79550f3a
 ```
 
 ---
