@@ -1,8 +1,6 @@
 # SIA-Premium: Sistema Integral de Ascensiones 🚀
 > Software de RRHH para **Premium Consultores** que automatiza el ciclo completo de gestión de talento: reclutamiento, evaluación de ingreso, contratación, evaluación 360°, ascenso/despido y reportes ejecutivos con análisis por competencia.
 
-![Imagen anexo — Vista general del Dashboard de Reportes con barras verticales por competencia]
-
 ---
 
 ## 📋 Tabla de Contenidos
