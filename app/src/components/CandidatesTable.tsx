@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import {
     obtenerListaCandidatos,
     eliminarCandidatoPorCedula,
+    contratarCandidato,
     type CandidateData,
 } from "../supabase";
 import EvaluationModal from "./EvaluationModal";
@@ -30,10 +31,32 @@ export default function CandidatesTable() {
         })();
     }, []);
 
-    const handleHireCandidate = (candidate: CandidateData) => {
-        // TODO
-        console.log("Contratar: ", candidate);
+    const handleHireCandidate = async (candidate: CandidateData) => {
+        if (candidate.estado !== 'Evaluado') {
+            alert("No se puede contratar a un candidato que no ha sido evaluado aún.");
+            return;
+        }
+
+        const cargo = window.prompt(`Ingresa el cargo asignar a ${candidate.nombre}:`, "Analista");
+        if (cargo === null) return; // Cancelado
+
+        const salarioStr = window.prompt(`Ingresa el salario para ${candidate.nombre} (solo números):`, "1000");
+        if (salarioStr === null) return;
+
+        const salario = Number(salarioStr);
+
+        setLoading(true);
+        const result = await contratarCandidato(candidate, cargo, salario);
+        
+        if (result.success) {
+            alert("Candidato formalmente contratado e insertado como empleado exitosamente.");
+            await fetchCandidates();
+        } else {
+            alert(`Error en contratación: ${result.error?.message || result.error || 'Desconocido'}`);
+        }
+        setLoading(false);
     };
+
     const handleDeleteCandidate = async (candidate: CandidateData) => {
         if (!confirm("¿Eliminar este candidato?")) return;
         await eliminarCandidatoPorCedula(candidate.cedula);

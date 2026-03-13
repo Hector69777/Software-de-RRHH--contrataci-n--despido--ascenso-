@@ -37,9 +37,10 @@ export default function NewCandidateForm() {
             respuestas_evaluacion: null,
         });
         if (result.success) {
-            alert("Candidato registrado.");
+            alert("Candidato registrado exitosamente.");
         } else {
-            alert("Error al registrar el candidato.");
+            console.error("Detalles del fallo Frontend:", result);
+            alert(`Error al registrar el candidato: ${result.message || JSON.stringify(result.error) || 'Desconocido'}`);
         }
     };
 
