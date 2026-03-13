@@ -149,19 +149,19 @@ npm run dev
 ### Vista de Candidatos
 <img src="anexos/image-20260313081029688.png" alt="Vista de Candidatos" width="800">
 ### Evaluación de Ingreso
-![image-20260313081107628](C:\Users\hecto\Documents\Programacion\Universidad\Sistemas de Operacion\Software de RRHH (contratación, despido, ascenso)\anexos\image-20260313081107628.png)
+<img src="anexos/image-20260313081107628.png" alt="Evaluación de Ingreso" width="800">
 
 ### Vista de Empleados
-![image-20260313081133918](C:\Users\hecto\Documents\Programacion\Universidad\Sistemas de Operacion\Software de RRHH (contratación, despido, ascenso)\anexos\image-20260313081133918.png)
+<img src="anexos/image-20260313081133918.png" alt="Vista de Empleados" width="800">
 
-### Evaluación 360°
-![image-20260313081214168](C:\Users\hecto\Documents\Programacion\Universidad\Sistemas de Operacion\Software de RRHH (contratación, despido, ascenso)\anexos\image-20260313081214168.png)
+### Evaluación 360° 
+<img src="anexos/image-20260313081214168.png" alt="Evaluación 360" width="800">
 
 ### Dashboard de Reportes
-![image-20260313081237269](C:\Users\hecto\Documents\Programacion\Universidad\Sistemas de Operacion\Software de RRHH (contratación, despido, ascenso)\anexos\image-20260313081237269.png)
+<img src="anexos/image-20260313081237269.png" alt="Dashboard de Reportes" width="800">
 
 ### Búsqueda Inteligente
-![image-20260313081301740](C:\Users\hecto\Documents\Programacion\Universidad\Sistemas de Operacion\Software de RRHH (contratación, despido, ascenso)\anexos\image-20260313081301740.png)
+<img src="anexos/image-20260313081301740.png" alt="Búsqueda Inteligente" width="800">
 
 ---
 
