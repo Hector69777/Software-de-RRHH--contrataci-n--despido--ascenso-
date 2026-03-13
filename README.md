@@ -147,8 +147,7 @@ npm run dev
 ## 📸 Visuales
 
 ### Vista de Candidatos
-![image-20260313081029688](C:\Users\hecto\Documents\Programacion\Universidad\Sistemas de Operacion\Software de RRHH (contratación, despido, ascenso)\anexos\image-20260313081029688.png)
-
+<img src="anexos/image-20260313081029688.png" alt="Vista de Candidatos" width="800">
 ### Evaluación de Ingreso
 ![image-20260313081107628](C:\Users\hecto\Documents\Programacion\Universidad\Sistemas de Operacion\Software de RRHH (contratación, despido, ascenso)\anexos\image-20260313081107628.png)
 
