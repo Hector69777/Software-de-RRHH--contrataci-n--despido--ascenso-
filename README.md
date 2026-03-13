@@ -194,6 +194,7 @@ Escribir cualquier término en la barra de búsqueda que aparece arriba de las t
 
 ```
 Software de RRHH/
+├── anexos/                           # Capturas de pantalla para la documentación
 ├── app/                              # Aplicación React (Vite + TypeScript)
 │   ├── src/
 │   │   ├── components/
@@ -221,7 +222,10 @@ Software de RRHH/
 │   ├── schema.sql                     # DDL de la base de datos
 │   ├── seed.sql                       # Datos de prueba
 │   └── busqueda_inteligente.sql       # Funciones RPC de búsqueda
-└── documentation.md                   # Este archivo
+├── supabase/                          # Configuración de Supabase Local (Docker)
+│   └── config.toml                    # Configuración de puertos y servicios
+├── README.md                          # Manual de usuario (copia de documentation.md)
+└── documentation.md                   # Documentación técnica y académica
 ```
 
 ---
