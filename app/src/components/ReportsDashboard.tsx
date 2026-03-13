@@ -146,7 +146,6 @@ export default function ReportsDashboard() {
                                     className={`h-full rounded-sm transition-all duration-700 ${grafico.puntajeSuperior >= grafico.objetivo ? "bg-blue-500" : "bg-red-500"}`}
                                     style={{ width: `${grafico.puntajeSuperior}%` }}
                                 />
-                                {/* Marker for company goal */}
                                 <div 
                                     className="absolute top-0 bottom-0 border-l-2 border-white/60 z-10"
                                     title={`Meta: ${grafico.objetivo}%`}
@@ -155,8 +154,68 @@ export default function ReportsDashboard() {
                             </div>
                         </div>
 
-                        <div className="text-xs text-slate-500 text-right italic pt-2 border-t border-slate-700/50 mt-4">
-                            * La línea vertical blanca representa la meta técnica ({grafico.objetivo}%). Valores por debajo advierten áreas de mejora técnica o blanda.
+                        {/* Desglose por Categoría — Barras Verticales en Pares */}
+                        {grafico.desgloseCategorias && grafico.desgloseCategorias.length > 0 && (
+                            <div className="pt-4 mt-2 border-t border-slate-700">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h4 className="text-xs font-semibold uppercase tracking-widest text-blue-400">
+                                        Desglose por Competencia vs. Perfil Meta (Director General)
+                                    </h4>
+                                    <div className="flex items-center gap-4 text-[10px] text-slate-400">
+                                        <span className="flex items-center gap-1.5">
+                                            <span className="inline-block w-3 h-3 rounded-sm bg-gradient-to-t from-yellow-600 to-yellow-400 border border-slate-600" /> Resultado
+                                        </span>
+                                        <span className="flex items-center gap-1.5">
+                                            <span className="inline-block w-3 h-3 rounded-sm bg-gradient-to-t from-indigo-700 to-indigo-400 border border-slate-600" /> Meta
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-end justify-around gap-2" style={{ height: "220px" }}>
+                                    {grafico.desgloseCategorias.map((cat) => {
+                                        const barColor = cat.porcentaje >= cat.meta
+                                            ? "from-green-600 to-green-400"
+                                            : cat.porcentaje >= cat.meta * 0.75
+                                                ? "from-yellow-600 to-yellow-400"
+                                                : "from-red-600 to-red-400";
+                                        return (
+                                            <div key={cat.categoria} className="flex flex-col items-center flex-1 h-full justify-end">
+                                                {/* Pair of bars */}
+                                                <div className="flex items-end gap-1 w-full justify-center h-full">
+                                                    {/* Employee bar */}
+                                                    <div className="flex flex-col items-center justify-end h-full" style={{ width: "35%" }}>
+                                                        <span className="text-[10px] font-mono font-bold text-slate-200 mb-1">{cat.porcentaje}%</span>
+                                                        <div
+                                                            className={`w-full rounded-t-sm bg-gradient-to-t ${barColor} transition-all duration-700 border border-slate-600 border-b-0`}
+                                                            style={{ height: `${(cat.porcentaje / 100) * 180}px` }}
+                                                            title={`${cat.categoria}: ${cat.porcentaje}%`}
+                                                        />
+                                                    </div>
+                                                    {/* Meta bar */}
+                                                    <div className="flex flex-col items-center justify-end h-full" style={{ width: "35%" }}>
+                                                        <span className="text-[10px] font-mono font-bold text-indigo-300 mb-1">{cat.meta}%</span>
+                                                        <div
+                                                            className="w-full rounded-t-sm bg-gradient-to-t from-indigo-700 to-indigo-400 transition-all duration-700 border border-slate-600 border-b-0 opacity-70"
+                                                            style={{ height: `${(cat.meta / 100) * 180}px` }}
+                                                            title={`Meta: ${cat.meta}%`}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                {/* Category label */}
+                                                <div className="w-full border-t border-slate-600 pt-1.5 mt-1">
+                                                    <p className="text-[9px] text-slate-400 text-center leading-tight font-medium">
+                                                        {cat.categoria}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="text-xs text-slate-500 text-right italic pt-3 border-t border-slate-700/50 mt-4">
+                            * Las barras de color representan el resultado del empleado. Las barras azules representan la meta del perfil Director General.
                         </div>
                     </div>
                 )}

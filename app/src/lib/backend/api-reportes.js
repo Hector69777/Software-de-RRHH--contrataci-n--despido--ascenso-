@@ -1,6 +1,19 @@
 import { supabase } from './supabase.js';
 
 /**
+ * Perfil meta de competencias para el cargo de Director General.
+ * Cada valor representa el porcentaje mínimo esperado en esa competencia.
+ */
+const perfilMetaDirectorGeneral = {
+    "Liderazgo": 95,
+    "Comunicación": 90,
+    "Trabajo en Equipo": 85,
+    "Competencia Técnica": 80,
+    "Resolución de Problemas": 85,
+    "Integridad y Compromiso": 95
+};
+
+/**
  * Obtiene las estadísticas generales del sistema realizando consultas optimizadas
  * que solo devuelven el conteo total (sin descargar los registros).
  * 
@@ -88,6 +101,9 @@ export async function obtenerDatosUltimoEvaluado() {
         // 4. Buscar la evaluación específica del Jefe / Superior
         let puntajeSuperiorPonderado = 0;
         
+        // 5. Calcular el desglose promedio por categoría (promediando todas las evaluaciones del historial)
+        const categoriasAgregadas = {};
+
         if (empleado.respuestas_evaluacion360 && Array.isArray(empleado.respuestas_evaluacion360)) {
             const evaSuperior = empleado.respuestas_evaluacion360.find(
                 evaluacion => evaluacion.evaluador === 'Superior'
@@ -95,17 +111,41 @@ export async function obtenerDatosUltimoEvaluado() {
             if (evaSuperior) {
                 puntajeSuperiorPonderado = evaSuperior.puntaje_ponderado || 0;
             }
+
+            // Recorrer cada evaluación y acumular los desgloses
+            empleado.respuestas_evaluacion360.forEach(evaluacion => {
+                if (evaluacion.desglose && typeof evaluacion.desglose === 'object') {
+                    Object.entries(evaluacion.desglose).forEach(([categoria, valores]) => {
+                        if (!categoriasAgregadas[categoria]) {
+                            categoriasAgregadas[categoria] = { sumaObtenido: 0, sumaMaximo: 0, count: 0 };
+                        }
+                        categoriasAgregadas[categoria].sumaObtenido += (valores.obtenido || 0);
+                        categoriasAgregadas[categoria].sumaMaximo += (valores.maximo || 1);
+                        categoriasAgregadas[categoria].count += 1;
+                    });
+                }
+            });
         }
         
         const puntajeSuperiorPorcentaje = Number((puntajeSuperiorPonderado * 100).toFixed(0));
 
-        // 5. Retornar el objeto estructurado
+        // Convertir a un array de objetos con porcentaje final por categoría + meta del perfil
+        const desgloseCategorias = Object.entries(categoriasAgregadas).map(([categoria, datos]) => ({
+            categoria,
+            porcentaje: datos.sumaMaximo > 0 
+                ? Number(((datos.sumaObtenido / datos.sumaMaximo) * 100).toFixed(0)) 
+                : 0,
+            meta: perfilMetaDirectorGeneral[categoria] || 85
+        }));
+
+        // 6. Retornar el objeto estructurado
         return {
             nombre: empleado.nombre,
-            estatus: empleado.revisado, // ej: "Ascendido", "Despedido", "Revisado"
-            objetivo: 85, // Meta ideal
+            estatus: empleado.revisado,
+            objetivo: 85,
             promedioGeneral: promedioGeneralPorcentaje,
-            puntajeSuperior: puntajeSuperiorPorcentaje
+            puntajeSuperior: puntajeSuperiorPorcentaje,
+            desgloseCategorias // Nuevo: array con { categoria, porcentaje }
         };
 
     } catch (error) {

@@ -174,6 +174,7 @@ export interface LatestEvalData {
     objetivo: number;
     promedioGeneral: number;
     puntajeSuperior: number;
+    desgloseCategorias: { categoria: string; porcentaje: number; meta: number }[];
 }
 
 export async function obtenerEstadisticasGenerales(): Promise<OperationResult<StatsData>> {
