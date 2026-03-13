@@ -56,25 +56,25 @@ export async function obtenerEstadistica() {
 }
 
 /**
- * Obtiene los datos clave del último empleado que haya sido ascendido
+ * Obtiene los datos clave del último empleado que haya sido evaluado
  * para poblar el gráfico estructurado en el Frontend.
  * 
- * @returns {Promise<Object|null>} Objeto con { nombre, objetivo, promedioGeneral, puntajeSuperior } o null.
+ * @returns {Promise<Object|null>} Objeto con { nombre, estatus, promedioGeneral, puntajeSuperior } o null.
  */
-export async function obtenerDatosUltimoAscenso() {
+export async function obtenerDatosUltimoEvaluado() {
     try {
-        // 1. Obtener el último empleado con estatus "Ascenso"
+        // 1. Obtener el último empleado que ya tenga una puntuacion general (evaluado)
         const { data, error } = await supabase
             .from('empleado')
             .select('*')
-            .eq('revisado', 'Ascenso')
-            .order('id', { ascending: false }) // Asume que 'id' es autoincremental, si es UUIDv4 ajusta por fecha_ingreso
+            .not('puntuacion_general', 'is', null)
+            .order('fecha_ultima_evaluacion', { ascending: false }) 
             .limit(1)
             .single();
 
         if (error) {
-            if (error.code === 'PGRST116') {
-                return null; // 2. No se encontraron resultados (0 ascensos en la BD)
+            if (error.code === 'PGRST116' || error.message.includes('0 rows')) {
+                return null; // No hay evaluaciones aún
             }
             throw error;
         }
@@ -102,13 +102,14 @@ export async function obtenerDatosUltimoAscenso() {
         // 5. Retornar el objeto estructurado
         return {
             nombre: empleado.nombre,
-            objetivo: 85, // Meta fija del 85% para ascenso recomendado
+            estatus: empleado.revisado, // ej: "Ascendido", "Despedido", "Revisado"
+            objetivo: 85, // Meta ideal
             promedioGeneral: promedioGeneralPorcentaje,
             puntajeSuperior: puntajeSuperiorPorcentaje
         };
 
     } catch (error) {
-        console.error('Error al obtener los datos del último ascenso:', error);
+        console.error('Error al obtener los datos de la última evaluación:', error);
         return null;
     }
 }

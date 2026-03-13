@@ -166,18 +166,38 @@ export async function guardarEvaluacion360(empleadoId, respuestasCrudas, evaluad
         }
 
         // 6. Inyectar de vuelta en la BD (Update)
-        const { data: registroActualizado, error: updateError } = await supabase
+        // Intentamos primero CON fecha_ultima_evaluacion; si la columna no existe, reintentamos sin ella
+        let registroActualizado = null;
+        const payload = { 
+            respuestas_evaluacion360: historial,
+            puntuacion_general: Number(nuevoPromedio.toFixed(2)),
+            revisado: estadoRevisado,
+            fecha_ultima_evaluacion: new Date().toISOString()
+        };
+
+        const { data: data1, error: err1 } = await supabase
             .from('empleado')
-            .update({ 
-                respuestas_evaluacion360: historial,
-                puntuacion_general: Number(nuevoPromedio.toFixed(2)),
-                revisado: estadoRevisado
-            })
+            .update(payload)
             .eq('id', empleadoId)
             .select();
 
-        if (updateError) {
-            return { success: false, error: 'Fallo al inyectar evaluación en empleado' };
+        if (err1) {
+            console.warn('Update con fecha_ultima_evaluacion falló, reintentando sin ella:', err1.message);
+            // Fallback: sin la columna nueva
+            const { respuestas_evaluacion360, puntuacion_general, revisado } = payload;
+            const { data: data2, error: err2 } = await supabase
+                .from('empleado')
+                .update({ respuestas_evaluacion360, puntuacion_general, revisado })
+                .eq('id', empleadoId)
+                .select();
+
+            if (err2) {
+                console.error('Error real de Supabase al actualizar empleado:', err2);
+                return { success: false, error: err2.message || 'Fallo al inyectar evaluación en empleado' };
+            }
+            registroActualizado = data2;
+        } else {
+            registroActualizado = data1;
         }
 
         return { success: true, data: registroActualizado && registroActualizado.length > 0 ? registroActualizado[0] : null };
@@ -286,7 +306,7 @@ export async function promoverEmpleado(empleadoId, nuevoCargo = "Director Genera
             .update({
                 cargo: nuevoCargo,
                 salario: salarioFinal,
-                revisado: 'Ascenso'
+                revisado: 'Pendiente'  // Reinicia el ciclo de evaluación tras la promoción
             })
             .eq('id', empleadoId)
             .select();

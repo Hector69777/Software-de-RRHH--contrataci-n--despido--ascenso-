@@ -18,9 +18,7 @@ export default function EvaluationModal({
     const [error, setError] = useState<string | null>(null);
 
     const categorias = [...new Set(bancoPreguntas.map((p) => p.categoria))];
-    const totalPreguntas = bancoPreguntas.filter(
-        (p) => p.tipo !== "abierta",
-    ).length;
+    const totalPreguntas = bancoPreguntas.length;
     const respondidas = Object.keys(respuestas).length;
 
     const handleSubmit = async () => {

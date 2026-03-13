@@ -3,6 +3,8 @@ import { NavLink } from "react-router";
 const NAV_ITEMS = [
     { label: "Nuevo candidato", path: "/nuevo-candidato" },
     { label: "Candidatos", path: "/candidatos" },
+    { label: "Empleados", path: "/empleados" },
+    { label: "Reportes", path: "/reportes" },
 ];
 
 export default function NavBar() {

@@ -33,22 +33,22 @@ export const bancoPreguntas360 = [
       { id: "eqp_3", texto: "¿Contribuye activamente a mantener un clima de cooperación en la oficina?" }
     ]
   },
-  // 4. GESTIÓN DE CONFLICTOS
+  // 4. COMPETENCIA TÉCNICA
   {
-    categoria: "Gestión de Conflictos",
+    categoria: "Competencia Técnica",
     preguntas: [
-      { id: "con_1", texto: "¿Maneja las conversaciones difíciles o conflictivas de manera constructiva?" },
-      { id: "con_2", texto: "¿Mantiene la calma y la objetividad en situaciones de alta presión?" },
-      { id: "con_3", texto: "¿Actúa como mediador(a) imparcial para resolver desacuerdos internos?" }
+      { id: "tec_1", texto: "¿Demuestra un nivel de conocimientos técnicos superior para las exigencias de su cargo?" },
+      { id: "tec_2", texto: "¿La calidad técnica de sus entregables es consistentemente impecable y sin errores?" },
+      { id: "tec_3", texto: "¿Domina rápidamente nuevas herramientas o metodologías requeridas para el trabajo?" }
     ]
   },
-  // 5. ADAPTABILIDAD
+  // 5. RESOLUCIÓN DE PROBLEMAS
   {
-    categoria: "Adaptabilidad",
+    categoria: "Resolución de Problemas",
     preguntas: [
-      { id: "ada_1", texto: "¿Muestra flexibilidad ante cambios repentinos en las directrices de los clientes?" },
-      { id: "ada_2", texto: "¿Acepta y utiliza la retroalimentación (feedback) para mejorar su desempeño?" },
-      { id: "ada_3", texto: "¿Propone ajustes creativos cuando los procesos actuales fallan?" }
+      { id: "res_1", texto: "¿Es capaz de solventar problemas técnicos complejos de forma autónoma?" },
+      { id: "res_2", texto: "¿Encuentra soluciones eficientes bajo presión o con márgenes de tiempo ajustados?" },
+      { id: "res_3", texto: "¿Sus soluciones técnicas previenen la recurrencia de las fallas?" }
     ]
   },
   // 6. INTEGRIDAD Y COMPROMISO
@@ -57,7 +57,7 @@ export const bancoPreguntas360 = [
     preguntas: [
       { id: "int_1", texto: "¿Actúa consistentemente bajo los valores éticos de Premium Consultores?" },
       { id: "int_2", texto: "¿Asume la responsabilidad total por sus acciones y los resultados de su unidad?" },
-      { id: "int_3", texto: "¿Demuestra lealtad hacia la firma y protege la confidencialidad de la información?" }
+      { id: "int_3", texto: "¿Demuestra lealtad hacia la firma y cumple cabalmente con las metas trazadas?" }
     ]
   }
 ];

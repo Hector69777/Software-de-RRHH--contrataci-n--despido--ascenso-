@@ -2,6 +2,10 @@
 import { supabase } from "../lib/backend/supabase.js";
 // @ts-ignore
 import { insertarCandidato as bgInsertarCandidato, obtenerListaCandidatos as bgObtenerListaCandidatos, subirCV as bgSubirCV, procesarFormularioCandidato as bgRegistrarCandidato, eliminarCandidato as bgEliminarCandidato, actualizarEvaluacionCandidato as bgActualizarEvaluacionCandidato, contratarCandidato as bgContratarCandidato } from "../lib/backend/api-candidatos.js";
+// @ts-ignore
+import { obtenerListaEmpleados as bgObtenerListaEmpleados, guardarEvaluacion360 as bgGuardarEvaluacion360, eliminarEmpleado as bgEliminarEmpleado, promoverEmpleado as bgPromoverEmpleado } from "../lib/backend/api-empleados.js";
+// @ts-ignore
+import { obtenerEstadistica as bgObtenerEstadistica, obtenerDatosUltimoEvaluado as bgObtenerDatosUltimoEvaluado } from "../lib/backend/api-reportes.js";
 
 // Export the base client just in case UI needs pure auth or storage directly
 export { supabase };
@@ -19,6 +23,20 @@ export interface CandidateData {
     formacion: string;
     respuestas_evaluacion: ScoreResult | null;
     estado: "Pendiente" | "Evaluado" | "Contratado";
+}
+
+export interface EmpleadoData {
+    id: string; // UUID
+    cedula: string | number;
+    nombre: string;
+    cargo: string | null;
+    contratado: boolean;
+    tlf: number | string | null;
+    departamento: string | null;
+    fecha_ingreso: string | null;
+    puntuacion_general: number | null;
+    revisado: "No evaluado" | "Revisado" | "Ascendido" | "Despedido";
+    respuestas_evaluacion360: any[] | null;
 }
 
 export interface OperationResult<T = unknown> {
@@ -118,5 +136,51 @@ export async function eliminarCandidatoPorCedula(cedula: string): Promise<boolea
  */
 export async function contratarCandidato(candidatoData: CandidateData, cargoAsignado: string, salarioAsignado: number) {
     return await bgContratarCandidato(candidatoData, cargoAsignado, salarioAsignado);
+}
+
+// ---------------------------------------------------------
+// Ascensions Module Wrappers (api-empleados.js)
+// ---------------------------------------------------------
+
+export async function obtenerListaEmpleados(): Promise<EmpleadoData[] | null> {
+    return await bgObtenerListaEmpleados();
+}
+
+export async function evaluarEmpleado360(empleadoId: string, respuestas: any, evaluador: string): Promise<OperationResult> {
+    return await bgGuardarEvaluacion360(empleadoId, respuestas, evaluador);
+}
+
+export async function eliminarEmpleadoDefinitivo(empleadoId: string): Promise<OperationResult> {
+    return await bgEliminarEmpleado(empleadoId);
+}
+
+export async function promoverEmpleadoAscenso(empleadoId: string, nuevoCargo: string, nuevoSalario: number): Promise<OperationResult> {
+    return await bgPromoverEmpleado(empleadoId, nuevoCargo, nuevoSalario);
+}
+
+// ---------------------------------------------------------
+// Reports Module Wrappers (api-reportes.js)
+// ---------------------------------------------------------
+
+export interface StatsData {
+    total_candidatos: number;
+    total_empleados: number;
+    total_ascensos: number;
+}
+
+export interface LatestEvalData {
+    nombre: string;
+    estatus: string;
+    objetivo: number;
+    promedioGeneral: number;
+    puntajeSuperior: number;
+}
+
+export async function obtenerEstadisticasGenerales(): Promise<OperationResult<StatsData>> {
+    return await bgObtenerEstadistica();
+}
+
+export async function obtenerGraficoUltimaEvaluacion(): Promise<LatestEvalData | null> {
+    return await bgObtenerDatosUltimoEvaluado();
 }
 

@@ -213,12 +213,12 @@ export function calcularScoreIngreso(respuestasCandidato) {
 /**
  * Guarda los resultados de la evaluación del motor automático en el perfil del candidato.
  * Actualiza la columna respuestas_evaluacion (tipo JSONB) con el objeto generado.
- * @param {string} candidatoId - El UUID del candidato en las bases de datos.
+ * @param {string} candidatoCedula - Cédula del candidato como identificador.
  * @param {Object} resultados - El objeto generado por calcularScoreIngreso().
  * @returns {Promise<boolean>} Retorna true si la actualización fue exitosa, false en caso contrario.
  */
-export async function guardarEvaluacionCandidato(candidatoId, resultados) {
-    if (!candidatoId || !resultados) return null;
+export async function guardarEvaluacionCandidato(candidatoCedula, resultados) {
+    if (!candidatoCedula || !resultados) return null;
 
     try {
         const { data, error } = await supabase
@@ -227,7 +227,7 @@ export async function guardarEvaluacionCandidato(candidatoId, resultados) {
                 respuestas_evaluacion: resultados,
                 estado: 'Evaluado'
             })
-            .eq('id', candidatoId)
+            .eq('cedula', String(candidatoCedula))
             .select();
 
         if (error) {
@@ -331,14 +331,14 @@ export async function contratarCandidato(candidatoData, cargoAsignado, salarioAs
             throw insertError;
         }
 
-        // Al finalizar exitosamente el Insert, hacemos el update en candidatos "estado: 'Contratado'"
+        // Al finalizar exitosamente el Insert, ELIMINAMOS el registro de la tabla candidatos (traslado completo)
         const { error: updateError } = await supabase
             .from('candidatos')
-            .update({ estado: 'Contratado' })
+            .delete()
             .eq('id', candidatoData.id);
 
         if (updateError) {
-            console.warn('Alerta: Empleado creado, pero falló la actualización del estatus en candidatos.', updateError);
+            console.warn('Alerta: Empleado creado, pero falló la eliminación/traslado en candidatos.', updateError);
             throw updateError; 
         }
 
